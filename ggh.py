@@ -47,7 +47,7 @@ class MMP():
         self.p_zt = self.ginv * h
 
         for i in range(k):
-            self.p_zt *= self.zinv
+            self.p_zt *= self.z
         print "time: ", current_time() - c
 
     def sample(self):
