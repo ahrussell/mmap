@@ -1,8 +1,7 @@
 from sage.all import *
 
 import time
-
-print "CLT multilinear map implementation using SAGE" 
+import math
 
 current_time = lambda:time.time()
 
@@ -20,28 +19,27 @@ class MMP():
 
         # set parameters
         self.alpha = lam
-        self.beta = lam
+        beta = lam
         self.rho = lam
-        self.mu = lam + self.alpha + self.rho
 
-        rho_f = k * (self.mu + self.rho + self.alpha + 2) + self.rho + 1
+        rho_f = k * (self.rho + self.alpha + 2) + self.rho + 1
 
-        self.eta = rho_f + self.alpha + 2*self.beta + lam + 8
-        self.bound = self.eta - self.beta - rho_f - lam - 3
+        eta = rho_f + self.alpha + 2*beta + lam + 8
+        self.bound = eta - beta - rho_f - lam - 3
 
-        self.n = self.eta * ZZ(round(log(float(lam),2.0)))
+        self.n = eta * ZZ(math.log(lam,2))
         print "N=", self.n
-        print "eta=", self.eta
+        print "eta=", eta
         print "bound", self.bound
 
         self.x0 = ZZ(1)
         
         print "generate primes"
-        primes = [random_prime(2**self.eta, proof=False) for i in range(self.n)]
+        primes = [random_prime(2**eta, proof=False) for i in range(self.n)]
         
         self.x0 = prod(primes)
 
-        print "generate crtCoeff_i's: "
+        print "generate crt coeff: "
 
         self.coeff = [ZZ((self.x0/p_i) * ZZ(Zmod(p_i)(self.x0/p_i)**(-1))) for p_i in primes]
 
@@ -63,7 +61,7 @@ class MMP():
         for i in range(k):
             zk *= Zmod(self.x0)(z)
         for i in range(self.n):
-            self.p_zt += Zmod(self.x0)(ZZ(Zmod(primes[i])(self.g[i])**(-1) * Zmod(primes[i])(zk)) * ZZ.random_element(2**self.beta) * (self.x0/primes[i]))
+            self.p_zt += Zmod(self.x0)(ZZ(Zmod(primes[i])(self.g[i])**(-1) * Zmod(primes[i])(zk)) * ZZ.random_element(2**beta) * (self.x0/primes[i]))
 
         self.p_zt = Zmod(self.x0)(self.p_zt)
 
@@ -88,7 +86,7 @@ class MMP():
 
 if __name__=="__main__":
 
-        lam = 52
+        lam = 2
         k = 5
 
         begin = current_time()
