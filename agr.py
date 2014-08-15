@@ -60,7 +60,7 @@ class MMP():
         return (max(w) < ZZ(self.x0**(3/4)))
 
 if __name__=="__main__":
-    lam = 50
+    lam = 90
     k = 5
 
     print "setup"; c = current_time()
