@@ -1,25 +1,24 @@
 from sage.all_cmdline import *
 
-import time
-
-current_time = lambda: time.time()
+from util import *
 
 class MMP():
     @staticmethod
     def set_params(lam, k):
         n = lam**2 * k # dim of poly ring
-        q = next_prime(ZZ(2)**(8*k*lambda) * self.n**k, proof=False) # prime modulus
+        q = next_prime(ZZ(2)**(8*k*lam) * n**k, proof=False) # prime modulus
 
-        sigma = sqrt(lam * n)
+        sigma = int(sqrt(lam * n))
         sigma_prime = lam * int(n**(1.5))
 
         return (n, q, sigma, sigma_prime)
 
     def __init__(self, params):
+
         print "set up rings"
         c = current_time()
 
-        (n, q, sigma, sigma_prime) = params
+        (self.n, self.q, sigma, self.sigma_prime) = params
 
         S = PolynomialRing(ZZ, 'x')
         self.R = S.quotient_ring(S.ideal(x**self.n + 1))
@@ -39,17 +38,24 @@ class MMP():
         c = current_time()
         Sk = PolynomialRing(QQ, 'x')
         K = Sk.quotient_ring(Sk.ideal(x**self.n + 1))
+
         # draw g (in Rq) repeatedly from a Gaussian distribution of Z^n (with param sigma)
         # until g^(-1) in QQ[x]/<x^n + 1> is small (< n^2)
-        self.g = self.Rq.random_element()
-        self.ginv = self.g**(-1)
+        while True:
+            g = self.Rq(random_gauss(sigma, self.n))
+            ginv_size = vector(K(list(g))**(-1)).norm()
+
+            if ginv_size < self.n**2:
+                self.ginv = g**(-1)
+                break
+
         print "time: ", current_time() - c
 
         print "generate p_zt"
         c = current_time()
         # compute zero-testing parameter p_zt
         # randomly draw h (in Rq) from a discrete Gaussian with param q^(1/2)
-        h = self.Rq.random_element()
+        h = self.Rq(random_gauss(int(sqrt(self.q)), self.n))
 
         # create p_zt
         self.p_zt = self.ginv * h
@@ -59,11 +65,10 @@ class MMP():
         print "time: ", current_time() - c
 
     def sample(self):
-        # draw an element from a Gaussian distribution of Z^n (with param sigmaprime)
-        # convert this element into an element of R (or Rq)
+        # draw an element of Rq from a Gaussian distribution of Z^n (with param sigmaprime)
         # multiply by z^(-1)
 
-        return self.Rq.random_element() * self.zinv 
+        return self.Rq(random_gauss(self.sigma_prime, self.n)) * self.zinv 
 
     def is_zero(self, c):
         w = c * self.p_zt
@@ -71,8 +76,8 @@ class MMP():
         return (max(w) < ZZ(self.q**(3/4)))
 
 if __name__=="__main__":
-    lam = 50 
-    k = 10
+    lam = 30 
+    k = 5
     params = MMP.set_params(lam, k)
 
     mmap = MMP(params)

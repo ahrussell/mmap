@@ -1,22 +1,13 @@
 from sage.all import *
 
-import time
 import math
 
-current_time = lambda:time.time()
-
-# #Constants
-# hBits = 80  # length of h_i's
-# alpha = 80  # length of g_i's
-# N = 540      # number of primes
-# pBits = 1838 # length of primes p_i
-# rho = 41    # length of r_i's
-# bound = 160 # bound to determine zero test 
+from util import *
 
 class MMP():
     
     @staticmethod
-    def set_param(lam, k):
+    def set_params(lam, k):
         alpha = lam # bitsize of g_i
         beta = lam # bitsize of h_i
         rho = lam # bitsize of r_i
@@ -25,7 +16,7 @@ class MMP():
         eta = rho_f + alpha + 2*beta + lam + 8 # bitsize of primes p_i
         bound = eta - beta - rho_f - lam - 3 # bitsize of message to extract with p_zt
 
-        n = lam # number of primes
+        n = 6*lam # number of primes
 
         return (alpha, beta, rho, eta, bound, n)
 
@@ -67,28 +58,27 @@ class MMP():
 
         self.p_zt = Zmod(self.x0)(self.p_zt)
 
-    def sample(self):
-        m = [ZZ.random_element(2**self.alpha) for i in range(self.n)]
-
+    def encode(self,m,level):
         c = Zmod(self.x0)(0)
+
         for i in range(self.n):
             r_i = ZZ.random_element(2**self.rho)
             c += Zmod(self.x0)((m[i] + self.g[i] * r_i) * self.coeff[i])
 
-        return Zmod(self.x0)(c * self.zinv)
+        return Zmod(self.x0)(c * self.zinv**level)
+
+    def sample(self):
+        m = [ZZ.random_element(self.g[i]) for i in range(self.n)]
+
+        return self.encode(m, 1)
     
     def is_zero(self,c):
-        num_bits = lambda x: len(ZZ(x).digits(2))
-
         w = Zmod(self.x0)(c*self.p_zt)
-        if num_bits(w) < num_bits(self.x0) - self.bound:
-            return 0
-        else:
-            return 1
+        return w < (self.x0 >> self.bound)
 
 if __name__=="__main__":
 
-        lam = 82
+        lam = 52
         k = 5
         params = MMP.set_params(lam, k)
 
@@ -102,6 +92,7 @@ if __name__=="__main__":
         print "generate level 1 encodings"
         c = current_time()
         encodings = [mmap.sample() for i in range(k)]
+        # zero = mmap.encrypt([0 for i in range(mmap.n)], 1)
         print "time:", current_time() - c
 
         print "multiply"
@@ -109,12 +100,14 @@ if __name__=="__main__":
         result = 1
         for e in encodings:
             result *= e
+        # result *= zero
         print "time:", current_time() - c
 
         print "zero test"
         c = current_time()
-        mmap.is_zero(result)
+        is_0 = mmap.is_zero(result)
         print "time:", current_time() - c
 
         print "total time:", current_time() - begin
 
+        print is_0

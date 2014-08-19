@@ -1,8 +1,6 @@
 from sage.all_cmdline import *
 
-import time
-
-current_time = lambda: time.time()
+from util import *
 
 class MMP():
     @staticmethod
