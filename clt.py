@@ -15,22 +15,24 @@ current_time = lambda:time.time()
 
 class MMP():
     
-    def __init__(self, lam, k):
+    @staticmethod
+    def set_param(lam, k):
+        alpha = lam # bitsize of g_i
+        beta = lam # bitsize of h_i
+        rho = lam # bitsize of r_i
+
+        rho_f = k * (rho + alpha + 2) + rho + 1 # max bitsize of r_i at level-k
+        eta = rho_f + alpha + 2*beta + lam + 8 # bitsize of primes p_i
+        bound = eta - beta - rho_f - lam - 3 # bitsize of message to extract with p_zt
+
+        n = lam # number of primes
+
+        return (alpha, beta, rho, eta, bound, n)
+
+    def __init__(self, params):
 
         # set parameters
-        self.alpha = lam
-        beta = lam
-        self.rho = lam
-
-        rho_f = k * (self.rho + self.alpha + 2) + self.rho + 1
-
-        eta = rho_f + self.alpha + 2*beta + lam + 8
-        self.bound = eta - beta - rho_f - lam - 3
-
-        self.n = eta * ZZ(math.log(lam,2))
-        print "N=", self.n
-        print "eta=", eta
-        print "bound", self.bound
+        (self.alpha, beta, self.rho, eta, self.bound, self.n) = params
 
         self.x0 = ZZ(1)
         
@@ -86,14 +88,15 @@ class MMP():
 
 if __name__=="__main__":
 
-        lam = 2
+        lam = 82
         k = 5
+        params = MMP.set_params(lam, k)
 
         begin = current_time()
 
         print "setup"
         c = current_time()
-        mmap = MMP(lam,k)
+        mmap = MMP(params)
         print "time:", current_time() - c
 
         print "generate level 1 encodings"

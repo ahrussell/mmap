@@ -5,13 +5,21 @@ import time
 current_time = lambda: time.time()
 
 class MMP():
-    def __init__(self, lam, k):
+    @staticmethod
+    def set_params(lam, k):
+        n = lam**2 * k # dim of poly ring
+        q = next_prime(ZZ(2)**(8*k*lambda) * self.n**k, proof=False) # prime modulus
+
+        sigma = sqrt(lam * n)
+        sigma_prime = lam * int(n**(1.5))
+
+        return (n, q, sigma, sigma_prime)
+
+    def __init__(self, params):
         print "set up rings"
         c = current_time()
-        self.n = lam**2 * k
-        self.q = Primes().next(ZZ(2**(8*k*lam) * self.n**k))
-        sigma = sqrt(lam*self.n)
-        sigma_prime = lam * self.n * sqrt(self.n)
+
+        (n, q, sigma, sigma_prime) = params
 
         S = PolynomialRing(ZZ, 'x')
         self.R = S.quotient_ring(S.ideal(x**self.n + 1))
@@ -65,8 +73,9 @@ class MMP():
 if __name__=="__main__":
     lam = 50 
     k = 10
+    params = MMP.set_params(lam, k)
 
-    mmap = MMP(lam, k)
+    mmap = MMP(params)
     print "generate encodings"
     c = current_time()
     encodings = [mmap.sample() for i in range(k)]

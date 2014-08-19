@@ -5,9 +5,14 @@ import time
 current_time = lambda: time.time()
 
 class MMP():
-    def __init__(self, lam, k):
-        self.n = int(sqrt(lam*lam*k)) # dimension of polynomial ring
-        self.m = int(sqrt(lam)) # number of primes
+    @staticmethod
+    def set_params(lam, k):
+        return (int(sqrt(lam*lam*k)), int(sqrt(lam)))
+
+
+    def __init__(self, params):
+        # n = dim of poly ring, m = number of primes
+        (self.n, self.m) = params
 
         primes = [random_prime(2**(lam*k*8), proof=False) for i in range(self.m)] # list of primes
         self.x0 = prod(primes)
@@ -60,11 +65,13 @@ class MMP():
         return (max(w) < ZZ(self.x0**(3/4)))
 
 if __name__=="__main__":
-    lam = 90
+    lam = 60
     k = 5
 
+    params = MMP.set_params(lam,k)
+
     print "setup"; c = current_time()
-    mmap = MMP(lam, k)
+    mmap = MMP(params)
     encodings = [mmap.sample() for i in range(k)]
     print "time:", current_time() - c
 
