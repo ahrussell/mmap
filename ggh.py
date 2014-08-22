@@ -25,7 +25,13 @@ class MMP():
         return 0
 
     def is_zero(self, c):
-        return False
+        w = self.Rq(c) * self.p_zt
+
+        f = lambda x, y: max(x, abs(mod_near(y, self.q)))
+
+        norm = reduce(f, w, float('-inf')) 
+        return (norm < ZZ(self.q**(.75)))
+
 
 if __name__=="__main__":
     lam = 20
