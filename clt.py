@@ -1,6 +1,7 @@
 from sage.all import *
 
 import math
+import random as rand
 
 from util import *
 
@@ -71,43 +72,32 @@ class MMP():
         m = [ZZ.random_element(self.g[i]) for i in range(self.n)]
 
         return self.encode(m, 1)
+
+    def zero(self):
+        return self.encode([0 for i in range(mmap.n)], 1)
     
     def is_zero(self,c):
-        w = Zmod(self.x0)(c*self.p_zt)
+        w = abs(mod_near(c*self.p_zt, self.x0))
         return w < (self.x0 >> self.bound)
 
 if __name__=="__main__":
 
-        lam = 52
-        k = 5
-        params = MMP.set_params(lam, k)
+    lam = 50
+    k = 5
+    params = MMP.set_params(lam, k)
 
-        begin = current_time()
+    mmap = MMP(params)
 
-        print "setup"
-        c = current_time()
-        mmap = MMP(params)
-        print "time:", current_time() - c
+    no_tests = 10
 
-        print "generate level 1 encodings"
-        c = current_time()
-        encodings = [mmap.sample() for i in range(k)]
-        # zero = mmap.encrypt([0 for i in range(mmap.n)], 1)
-        print "time:", current_time() - c
+    tests_passed = 0
+    for i in range(no_tests): 
+        tests_passed += test_mmap(mmap, k, rand.choice([True, False]))
 
-        print "multiply"
-        c = current_time()
-        result = 1
-        for e in encodings:
-            result *= e
-        # result *= zero
-        print "time:", current_time() - c
+    print
+    print "Tests passed:", tests_passed
+    print "Tests failed:", no_tests - tests_passed
 
-        print "zero test"
-        c = current_time()
-        is_0 = mmap.is_zero(result)
-        print "time:", current_time() - c
 
-        print "total time:", current_time() - begin
+        
 
-        print is_0
