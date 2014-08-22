@@ -2,6 +2,8 @@ from sage.all_cmdline import *
 
 from util import *
 
+import random as rand
+
 class MMP():
     @staticmethod
     def set_params(lam, k):
@@ -20,8 +22,8 @@ class MMP():
 
         (self.n, self.q, sigma, self.sigma_prime) = params
 
-        S = PolynomialRing(ZZ, 'x')
-        self.R = S.quotient_ring(S.ideal(x**self.n + 1))
+        self.S = PolynomialRing(ZZ, 'x')
+        self.R = self.S.quotient_ring(self.S.ideal(x**self.n + 1))
 
         Sq = PolynomialRing(Zmod(self.q), 'x')
         self.Rq = Sq.quotient_ring(Sq.ideal(x**self.n + 1))
@@ -41,13 +43,20 @@ class MMP():
 
         # draw g (in Rq) repeatedly from a Gaussian distribution of Z^n (with param sigma)
         # until g^(-1) in QQ[x]/<x^n + 1> is small (< n^2)
-        while True:
-            g = self.Rq(random_gauss(sigma, self.n))
-            ginv_size = vector(K(list(g))**(-1)).norm()
+        # while True:
+        #     l = random_gauss(sigma, self.n)
+        #     ginv_K = K(l)**(-1)
+        #     ginv_size = vector(ginv_K).norm()
 
-            if ginv_size < self.n**2:
-                self.ginv = g**(-1)
-                break
+        #     if ginv_size < self.n**2:
+        #         self.g = self.Rq(l)
+        #         self.ginv = g**(-1)
+        #         break
+
+        # don't check if g^(-1) in K is small because inverting g in K is expensive
+        # and it's probably small anyway
+        self.g = self.Rq(random_gauss(sigma, self.n))
+        self.ginv = self.g**(-1)
 
         print "time: ", current_time() - c
 
@@ -55,47 +64,45 @@ class MMP():
         c = current_time()
         # compute zero-testing parameter p_zt
         # randomly draw h (in Rq) from a discrete Gaussian with param q^(1/2)
-        h = self.Rq(random_gauss(int(sqrt(self.q)), self.n))
+        self.h = self.Rq(random_gauss(int(sqrt(self.q)), self.n))
 
         # create p_zt
-        self.p_zt = self.ginv * h
+        self.p_zt = self.ginv * self.h * self.z**k
 
-        for i in range(k):
-            self.p_zt *= self.z
         print "time: ", current_time() - c
 
     def sample(self):
         # draw an element of Rq from a Gaussian distribution of Z^n (with param sigmaprime)
         # multiply by z^(-1)
 
-        return self.Rq(random_gauss(self.sigma_prime, self.n)) * self.zinv 
+        return self.Rq(random_gauss(self.sigma_prime, self.n)) * self.zinv
+
+    def zero(self):
+        ''' Level-1 encoding of 0 '''
+        return self.g * self.zinv
 
     def is_zero(self, c):
-        w = c * self.p_zt
+        w = self.Rq(c) * self.p_zt
 
-        return (max(w) < ZZ(self.q**(3/4)))
+        f = lambda x: abs(mod_near(x, self.q))
+
+        normalized = map(f, list(w)) 
+        return (max(normalized) < ZZ(self.q**(.75)))
+
 
 if __name__=="__main__":
-    lam = 30 
+    lam = 10
     k = 5
     params = MMP.set_params(lam, k)
-
     mmap = MMP(params)
-    print "generate encodings"
-    c = current_time()
-    encodings = [mmap.sample() for i in range(k)]
-    print "time: ", current_time() - c
 
-    result = 1
+    no_tests = 10
 
-    print "multiply encodings"
-    t = current_time()
-    for c in encodings:
-        result *= c
-    print "time: ", current_time() - t
+    tests_passed = 0
+    for i in range(no_tests): 
+        tests_passed += test_mmap(mmap, k, rand.choice([True, False]))
 
-    print "zero test"
-    c = current_time()
-    mmap.is_zero(result)
-    print "time: ", current_time() - c
+    print
+    print "Tests passed:", tests_passed
+    print "Tests failed:", no_tests - tests_passed
 
