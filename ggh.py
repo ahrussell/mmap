@@ -22,8 +22,8 @@ class MMP():
 
         (self.n, self.q, sigma, self.sigma_prime) = params
 
-        self.S = PolynomialRing(ZZ, 'x')
-        self.R = self.S.quotient_ring(self.S.ideal(x**self.n + 1))
+        S = PolynomialRing(ZZ, 'x')
+        self.R = S.quotient_ring(S.ideal(x**self.n + 1))
 
         Sq = PolynomialRing(Zmod(self.q), 'x')
         self.Rq = Sq.quotient_ring(Sq.ideal(x**self.n + 1))
@@ -64,7 +64,7 @@ class MMP():
         c = current_time()
         # compute zero-testing parameter p_zt
         # randomly draw h (in Rq) from a discrete Gaussian with param q^(1/2)
-        self.h = self.Rq(random_gauss(int(sqrt(self.q)), self.n))
+        self.h = self.Rq(random_gauss(round(sqrt(self.q)), self.n))
 
         # create p_zt
         self.p_zt = self.ginv * self.h * self.z**k
