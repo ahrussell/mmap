@@ -1,10 +1,11 @@
 from sage.all_cmdline import *
 
+from mmp import MMP
 from util import *
 
 import random as rand
 
-class MMP():
+class GGH(MMP):
     @staticmethod
     def set_params(lam, k):
         n = lam**2 * k # dim of poly ring
@@ -15,9 +16,9 @@ class MMP():
 
         return (n, q, sigma, sigma_prime)
 
+    @profile(LOG, "setup")
     def __init__(self, params):
 
-        print "set up rings"
         c = current_time()
 
         (self.n, self.q, sigma, self.sigma_prime) = params
@@ -27,16 +28,12 @@ class MMP():
 
         Sq = PolynomialRing(Zmod(self.q), 'x')
         self.Rq = Sq.quotient_ring(Sq.ideal(x**self.n + 1))
-        print "time: ", current_time() - c
 
-        print "generate z"
         c = current_time()
         # draw z uniformly from Rq and compute its inverse in Rq
         self.z = self.Rq.random_element()
         self.zinv = self.z**(-1)
-        print "time: ", current_time() - c
 
-        print "generate g"
         c = current_time()
         Sk = PolynomialRing(QQ, 'x')
         K = Sk.quotient_ring(Sk.ideal(x**self.n + 1))
@@ -58,9 +55,6 @@ class MMP():
         self.g = self.Rq(random_gauss(sigma, self.n))
         self.ginv = self.g**(-1)
 
-        print "time: ", current_time() - c
-
-        print "generate p_zt"
         c = current_time()
         # compute zero-testing parameter p_zt
         # randomly draw h (in Rq) from a discrete Gaussian with param q^(1/2)
@@ -68,8 +62,6 @@ class MMP():
 
         # create p_zt
         self.p_zt = self.ginv * self.h * self.z**k
-
-        print "time: ", current_time() - c
 
     def sample(self):
         # draw an element of Rq from a Gaussian distribution of Z^n (with param sigmaprime)
@@ -91,18 +83,10 @@ class MMP():
 
 
 if __name__=="__main__":
-    lam = 10
+    lam = 20
     k = 5
-    params = MMP.set_params(lam, k)
-    mmap = MMP(params)
+    print "GGH (lambda="+str(lam)+", k="+str(k)+")"
+    params = GGH.set_params(lam, k)
+    mmap = GGH(params)
 
-    no_tests = 10
-
-    tests_passed = 0
-    for i in range(no_tests): 
-        tests_passed += test_mmap(mmap, k, rand.choice([True, False]))
-
-    print
-    print "Tests passed:", tests_passed
-    print "Tests failed:", no_tests - tests_passed
-
+    mmap.run(k, of_zero = rand.choice([True, False]))
