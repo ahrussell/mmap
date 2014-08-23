@@ -9,9 +9,9 @@ class MMP():
         raise Exception("abstract class")
 
     @profile(LOG, "generate")
-    def generate(self, k):
-        ''' Generate k level-1 encodings '''
-        return [self.sample() for i in range(k)]
+    def generate(self, l):
+        ''' Generate l level-1 encodings '''
+        return [self.sample() for i in range(l)]
 
     @profile(LOG, "multiply")
     def multiply(self, encodings, *args):
@@ -23,24 +23,25 @@ class MMP():
 
         return result
 
-    def run(self, k, of_zero = False):
-        ''' Generates k level-1 encodings, multiplies them'''
-        ''' Will return a level-k encoding of 0 if of_zero=True '''
+    def run(self, l, of_zero = False):
+        ''' Generates l level-1 encodings, multiplies them'''
+        ''' Will return a level-l encoding of 0 if of_zero=True '''
 
-        encodings = self.generate(k - of_zero)
+        encodings = self.generate(l - of_zero)
 
         if of_zero:
             encodings.append(self.zero())
 
         return self.multiply(encodings)
 
-    def test_mmap(self, k, no_tests):
+    def test(self, no_tests):
 
         passes = 0
 
         for i in range(no_tests):
-            result = self.run(k, of_zero = rand.choice([True, False]))
+            zero = rand.choice([True, False])
+            result = self.run(self.k, of_zero = zero)
 
-            passes += self.is_zero(result) == with_zero # add 1 if it passes
+            passes += self.is_zero(result) == zero # add 1 if it passes
 
         return passes
