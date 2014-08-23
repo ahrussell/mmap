@@ -9,7 +9,8 @@ if __name__=="__main__":
     lam = 10
     k = 5
 
-    parser = argparse.ArgumentParser(description='Run a multilinear map')
+    parser = argparse.ArgumentParser(description='''Run a multilinear map.
+        You can specify the implementation and parameters used, as well as run some tests.''')
 
     parser.add_argument('-m', dest='implementation', choices=["clt", "ggh"], default="clt", help='The implementation to use. CLT is default.')
     parser.add_argument('-lam', dest='lam', default=lam, type=int, 
