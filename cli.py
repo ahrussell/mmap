@@ -12,11 +12,11 @@ if __name__=="__main__":
     parser = argparse.ArgumentParser(description='''Run a multilinear map.
         You can specify the implementation and parameters used, as well as run some tests.''')
 
-    parser.add_argument('-m', dest='implementation', choices=["clt", "ggh"], default="clt", help='The implementation to use. CLT is default.')
+    parser.add_argument('-m', dest='implementation', choices=["clt", "ggh"], default="clt", help='The implementation to use. clt is default.')
     parser.add_argument('-lam', dest='lam', default=lam, type=int, 
-        help='Security parameter')
+        help='Security parameter, default is ' + str(lam))
     parser.add_argument('-k', dest='k', default=k, type=int, 
-        help='Multilinearity parameter')
+        help='Multilinearity parameter, default is ' + str(k))
 
     parser.add_argument('--tests', dest='tests', metavar='N', default=0, type=int, 
         help='Tests the maps and zero testing parameter with N tests')
