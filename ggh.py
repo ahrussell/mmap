@@ -14,14 +14,14 @@ class GGH(MMP):
         sigma = int(sqrt(lam * n))
         sigma_prime = lam * int(n**(1.5))
 
-        return (n, q, sigma, sigma_prime)
+        return (n, q, sigma, sigma_prime, k)
 
     @profile(LOG, "setup")
     def __init__(self, params):
 
         c = current_time()
 
-        (self.n, self.q, sigma, self.sigma_prime) = params
+        (self.n, self.q, sigma, self.sigma_prime, self.k) = params
 
         S = PolynomialRing(ZZ, 'x')
         self.R = S.quotient_ring(S.ideal(x**self.n + 1))
@@ -61,7 +61,7 @@ class GGH(MMP):
         self.h = self.Rq(random_gauss(round(sqrt(self.q)), self.n))
 
         # create p_zt
-        self.p_zt = self.ginv * self.h * self.z**k
+        self.p_zt = self.ginv * self.h * self.z**self.k
 
     def sample(self):
         # draw an element of Rq from a Gaussian distribution of Z^n (with param sigmaprime)
@@ -80,13 +80,3 @@ class GGH(MMP):
 
         norm = reduce(f, w, float('-inf')) 
         return (norm < ZZ(self.q**(.75)))
-
-
-if __name__=="__main__":
-    lam = 20
-    k = 5
-    print "GGH (lambda="+str(lam)+", k="+str(k)+")"
-    params = GGH.set_params(lam, k)
-    mmap = GGH(params)
-
-    mmap.run(k, of_zero = rand.choice([True, False]))
