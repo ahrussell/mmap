@@ -83,9 +83,10 @@ class GGH(MMP):
 
 
 if __name__=="__main__":
-    lam = 10
+    lam = 20
     k = 5
+    print "GGH (lambda="+str(lam)+", k="+str(k)+")"
     params = GGH.set_params(lam, k)
     mmap = GGH(params)
 
-    GGH.run(k, of_zero = rand.choice([True, False]))
+    mmap.run(k, of_zero = rand.choice([True, False]))

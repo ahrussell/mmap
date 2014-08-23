@@ -8,6 +8,7 @@ class MMP():
     def __init__(self):
         raise Exception("abstract class")
 
+    @profile(LOG, "generate")
     def generate(self, k):
         ''' Generate k level-1 encodings '''
         return [self.sample() for i in range(k)]
@@ -20,9 +21,6 @@ class MMP():
         for c in encodings:
             result *= c
 
-        for c in args:
-            result *= c
-
         return result
 
     def run(self, k, of_zero = False):
@@ -32,11 +30,9 @@ class MMP():
         encodings = self.generate(k - of_zero)
 
         if of_zero:
-            result = self.multiply(encodings, self.zero())
-        else:
-            result = self.multiply(encodings)
+            encodings.append(self.zero())
 
-        return result
+        return self.multiply(encodings)
 
     def test_mmap(self, k, no_tests):
 

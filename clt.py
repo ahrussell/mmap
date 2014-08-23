@@ -61,7 +61,7 @@ class CLT(MMP):
 
     def encode(self,m,level):
         ''' Encodes a vector m in ZZ^n '''
-        
+
         c = Zmod(self.x0)(0)
 
         for i in range(self.n):
@@ -85,6 +85,7 @@ class CLT(MMP):
 if __name__=="__main__":
     lam = 20
     k = 5
+    print "CLT (lambda="+str(lam)+", k="+str(k)+")"
     params = CLT.set_params(lam, k)
     mmap = CLT(params)
 

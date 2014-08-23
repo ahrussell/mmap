@@ -25,10 +25,9 @@ def profile(log_file, message):
     def timed(func):
         def wrap(*args, **kwargs):
             if type(log_file) != 'str':
-                log_file.write(message + "\n")
                 start = time.time()
                 result = func(*args, **kwargs)
-                log_file.write("time: " + str(time.time() - start) + "\n\n")
+                log_file.write(message+": " + str(time.time() - start) + "\n")
             else:
                 with open(log_file, 'a') as f:
                     f.write(message + "\n")
