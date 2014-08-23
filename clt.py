@@ -3,9 +3,10 @@ from sage.all import *
 import math
 import random as rand
 
+from mmp import MMP
 from util import *
 
-class MMP():
+class CLT(MMP):
     
     @staticmethod
     def set_params(lam, k):
@@ -21,6 +22,7 @@ class MMP():
 
         return (alpha, beta, rho, eta, bound, n)
 
+    @profile(LOG, "setup")
     def __init__(self, params):
 
         # set parameters
@@ -28,19 +30,17 @@ class MMP():
 
         self.x0 = ZZ(1)
         
-        print "generate primes"
         primes = [random_prime(2**eta, proof=False) for i in range(self.n)]
         
         self.x0 = prod(primes)
 
-        print "generate crt coeff: "
-
+        # generate CRT coefficients
         self.coeff = [ZZ((self.x0/p_i) * ZZ(Zmod(p_i)(self.x0/p_i)**(-1))) for p_i in primes]
 
-        print "generate the g_i's: "
+        # generate secret g_i
         self.g = [random_prime(2**self.alpha, proof=False) for i in range(self.n)]
 
-        print "generate z and zinv: "
+        # generate z and z^(-1)
         while True:
             z = ZZ.random_element(self.x0)  
             try:
@@ -49,7 +49,7 @@ class MMP():
             except ZeroDivisionError:
                 ''' Error occurred '''
 
-        print "generate zero tester p_zt: "
+        # generate p_zt
         zk = Zmod(self.x0)(1)
         self.p_zt = 0
         for i in range(k):
@@ -60,6 +60,8 @@ class MMP():
         self.p_zt = Zmod(self.x0)(self.p_zt)
 
     def encode(self,m,level):
+        ''' Encodes a vector m in ZZ^n '''
+        
         c = Zmod(self.x0)(0)
 
         for i in range(self.n):
@@ -81,23 +83,9 @@ class MMP():
         return w < (self.x0 >> self.bound)
 
 if __name__=="__main__":
-
-    lam = 50
+    lam = 20
     k = 5
-    params = MMP.set_params(lam, k)
+    params = CLT.set_params(lam, k)
+    mmap = CLT(params)
 
-    mmap = MMP(params)
-
-    no_tests = 10
-
-    tests_passed = 0
-    for i in range(no_tests): 
-        tests_passed += test_mmap(mmap, k, rand.choice([True, False]))
-
-    print
-    print "Tests passed:", tests_passed
-    print "Tests failed:", no_tests - tests_passed
-
-
-        
-
+    mmap.run(k, of_zero = rand.choice([True, False]))
