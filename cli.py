@@ -8,11 +8,13 @@ from util import *
 if __name__=="__main__":
     lam = 10
     k = 5
+    default_implementation = "clt"
 
     parser = argparse.ArgumentParser(description='''Run a multilinear map.
         You can specify the implementation and parameters used, as well as run some tests.''')
 
-    parser.add_argument('-m', dest='implementation', choices=["clt", "ggh"], default="clt", help='The implementation to use. clt is default.')
+    parser.add_argument('-m', dest='implementation', choices=["clt", "ggh"], default=default_implementation, 
+        help='The implementation to use. The default is ' + default_implementation + '.')
     parser.add_argument('-lam', dest='lam', default=lam, type=int, 
         help='Security parameter, default is ' + str(lam))
     parser.add_argument('-k', dest='k', default=k, type=int, 
