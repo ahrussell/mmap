@@ -8,12 +8,12 @@ class MMP():
     def __init__(self):
         raise Exception("abstract class")
 
-    @profile(LOG, "generate")
+    #@profile(LOG, "generate")
     def generate(self, k):
         ''' Generate k level-1 encodings '''
         return [self.sample() for i in range(k)]
 
-    @profile(LOG, "multiply")
+    #@profile(LOG, "multiply")
     def multiply(self, encodings, *args):
         ''' Multiplies encodings and args '''
 

@@ -1,3 +1,4 @@
+from sage.all import *
 import clt
 import time
 
@@ -5,14 +6,13 @@ current_time = lambda:time.time()
 
 def linearcomb(omega, x0):
 		n = len(omega)
-		matrix = block_matrix([[identity_matrix(n), matrix(omega).transpose()],[matrix(ZZ, 1, n, 0), x0]])
-		print matrix
+		mat = block_matrix([[identity_matrix(n), matrix(omega).transpose()],[matrix(ZZ, 1, n, 0), x0]])
 		while True:
-			temp = list(matrix.column(n))
+			temp = list(mat.column(n))
 			index = next((i for i, x in enumerate(temp) if x), None)
 			minimum = temp[index]
 			count = 0
-			for i in range (self.n+1):
+			for i in range (n+1):
 				if (temp[i] != 0):
 					count+=1
 				 	if(temp[i] < minimum):
@@ -22,29 +22,28 @@ def linearcomb(omega, x0):
 				break
 			for i in range (n+1):
 				if (i != index):
-					self.matrix.add_multiple_of_row(i, index, -(matrix[i, n]//minimum))
-			temp = list(matrix.column(n))
-		matrix = matrix.delete_rows([index, n])
-		matrix = matrix.delete_columns([n])
-		matrix = matrix.LLL()
+					mat.add_multiple_of_row(i, index, -(mat[i, n]//minimum))
+			temp = list(mat.column(n))
+		mat = mat.delete_rows([index, n])
+		mat = mat.delete_columns([n])
+		mat = mat.LLL()
 		print "Reduced Matrix"
-		print matrix
-		return 0
+		print mat
+		return mat
 
 def main():
-	lam = 20
+	lam = 2
 	k = 5
 	print "CLT (lambda="+str(lam)+", k="+str(k)+")"
 	params = clt.CLT.set_params(lam, k)
 	mmap = clt.CLT(params)
 	num_encodings = 10
 	omega = vector(ZZ, [0 for i in range(num_encodings)])
-	for i in range(self.n):
-		self.omega[i] = (encodings[i])
-	mmap.run(k, of_zero = True)
+	for i in range(num_encodings):
+		omega[i] = Zmod(mmap.x0)(mmap.run(k, of_zero = True) * mmap.p_zt)
    	c = current_time()
 	print "Computing matrix reduction:"
-	Attack.__linearcomb__(atk)
+	u = linearcomb(omega, mmap.x0)
 	print "Time:", current_time()-c
 
 if __name__=="__main__":

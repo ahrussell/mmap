@@ -22,7 +22,7 @@ class CLT(MMP):
         k_temp = k
         return (alpha, beta, rho, eta, bound, n, k_temp)
 
-    @profile(LOG, "setup")
+    #@profile(LOG, "setup")
     def __init__(self, params):
 
         # set parameters
