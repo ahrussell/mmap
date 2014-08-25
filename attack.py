@@ -1,11 +1,16 @@
 import clt
 
-if __name__=="__main__":
-    lam = 10
-    k = 5
+def main():
+    lam = 20
+    k_atk = 5
+    print "CLT (lambda="+str(lam)+", k_atk="+str(k_atk)+")"
+    params = clt.CLT.set_params(lam, k_atk)
+    mmap = clt.CLT(params)
+    num_encodings = 10
+    mmap.run(k_atk, of_zero = True)
 
-    params = clt.MMP.set_params(lam, k)
-    mmap = clt.MMP(params)
+if __name__=="__main__":
+    main()
 
 # attack psuedocode
 

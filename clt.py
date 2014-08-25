@@ -19,14 +19,14 @@ class CLT(MMP):
         bound = eta - beta - rho_f - lam - 3 # bitsize of message to extract with p_zt
 
         n = 6*lam # number of primes
-
-        return (alpha, beta, rho, eta, bound, n)
+        k_temp = k
+        return (alpha, beta, rho, eta, bound, n, k_temp)
 
     @profile(LOG, "setup")
     def __init__(self, params):
 
         # set parameters
-        (self.alpha, beta, self.rho, eta, self.bound, self.n) = params
+        (self.alpha, beta, self.rho, eta, self.bound, self.n, self.k) = params
 
         self.x0 = ZZ(1)
         
@@ -52,7 +52,7 @@ class CLT(MMP):
         # generate p_zt
         zk = Zmod(self.x0)(1)
         self.p_zt = 0
-        for i in range(k):
+        for i in range(self.k):
             zk *= Zmod(self.x0)(z)
         for i in range(self.n):
             self.p_zt += Zmod(self.x0)(ZZ(Zmod(primes[i])(self.g[i])**(-1) * Zmod(primes[i])(zk)) * ZZ.random_element(2**beta) * (self.x0/primes[i]))
@@ -76,7 +76,7 @@ class CLT(MMP):
         return self.encode(m, 1)
 
     def zero(self):
-        return self.encode([0 for i in range(mmap.n)], 1)
+        return self.encode([0 for i in range(self.n)], 1)
     
     def is_zero(self,c):
         w = abs(mod_near(c*self.p_zt, self.x0))
