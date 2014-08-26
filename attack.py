@@ -7,9 +7,9 @@ def orthogonal_lattice(omega, x0):
 
     l = len(omega)
 
-    mat = block_matrix([[identity_matrix(l), omega.column()],[zero_matrix(ZZ, 1, l), x0]])
+    M = block_matrix([[identity_matrix(l), omega.column()],[zero_matrix(ZZ, 1, l), x0]])
     while True:
-        last_col = mat.column(l)
+        last_col = M.column(l)
         nonzero = [(i,x) for i,x in enumerate(last_col) if x]
         (index, minimum) = min(nonzero, key = lambda x: x[1])
 
@@ -20,11 +20,11 @@ def orthogonal_lattice(omega, x0):
         # subtract x//minimum from each row (except the row with the min entry) 
         for i,x in enumerate(last_col):
             if i != index:
-                mat.add_multiple_of_row(i, index, -(x//minimum))
+                M.add_multiple_of_row(i, index, -(x//minimum))
 
-    mat = mat.delete_rows([index, l]).delete_columns([l])
+    M = M.delete_rows([index, l]).delete_columns([l])
 
-    return mat
+    return M
 
 def attack(mmap, l):
     omega = vector(ZZ, [mmap.run(mmap.k, True) * mmap.p_zt for i in range(l)])
