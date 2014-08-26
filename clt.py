@@ -26,8 +26,9 @@ class CLT(MMP):
     def __init__(self, params):
 
         # set parameters
-        (self.alpha, beta, self.rho, eta, self.bound, self.n, self.k) = params
+        (self.alpha, beta, self.rho, self.eta, self.bound, self.n, self.k) = params
 
+        eta = self.eta
         self.x0 = ZZ(1)
         
         primes = [random_prime(2**eta, proof=False) for i in range(self.n)]
