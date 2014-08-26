@@ -1,53 +1,59 @@
 from sage.all import *
-import clt
-import time
+from clt import CLT
+from util import *
 
-current_time = lambda:time.time()
+@profile(LOG, "orthogonal lattice")
+def orthogonal_lattice(omega, x0):
 
-def linearcomb(omega, x0):
-		n = len(omega)
-		mat = block_matrix([[identity_matrix(n), matrix(omega).transpose()],[matrix(ZZ, 1, n, 0), x0]])
-		while True:
-			temp = list(mat.column(n))
-			index = next((i for i, x in enumerate(temp) if x), None)
-			minimum = temp[index]
-			count = 0
-			for i in range (n+1):
-				if (temp[i] != 0):
-					count+=1
-				 	if(temp[i] < minimum):
-						minimum = temp[i]
-						index = i
-			if count == 1:
-				break
-			for i in range (n+1):
-				if (i != index):
-					mat.add_multiple_of_row(i, index, -(mat[i, n]//minimum))
-			temp = list(mat.column(n))
-		mat = mat.delete_rows([index, n])
-		mat = mat.delete_columns([n])
-		mat = mat.LLL()
-		print "Reduced Matrix"
-		print mat
-		return mat
+    l = len(omega)
 
-def main():
-	lam = 2
-	k = 5
-	print "CLT (lambda="+str(lam)+", k="+str(k)+")"
-	params = clt.CLT.set_params(lam, k)
-	mmap = clt.CLT(params)
-	num_encodings = 10
-	omega = vector(ZZ, [0 for i in range(num_encodings)])
-	for i in range(num_encodings):
-		omega[i] = Zmod(mmap.x0)(mmap.run(k, of_zero = True) * mmap.p_zt)
-   	c = current_time()
-	print "Computing matrix reduction:"
-	u = linearcomb(omega, mmap.x0)
-	print "Time:", current_time()-c
+    mat = block_matrix([[identity_matrix(l), omega.column()],[zero_matrix(ZZ, 1, l), x0]])
+    while True:
+        last_col = mat.column(l)
+        nonzero = [(i,x) for i,x in enumerate(last_col) if x]
+        (index, minimum) = min(nonzero, key = lambda x: x[1])
+
+        # if number of nonzero entries in the last column is 1, we're done
+        if len(nonzero) == 1:
+            break
+
+        # subtract x//minimum from each row (except the row with the min entry) 
+        for i,x in enumerate(last_col):
+            if i != index:
+                mat.add_multiple_of_row(i, index, -(x//minimum))
+
+    mat = mat.delete_rows([index, l]).delete_columns([l])
+
+    return mat
+
+def attack(mmap, l):
+    omega = vector(ZZ, [mmap.run(mmap.k, True) * mmap.p_zt for i in range(l)])
+
+    u = orthogonal_lattice(omega, mmap.x0)
+
+def test(mmap, l):
+    ''' test the orthogonal_lattice method '''
+    omega = vector(ZZ, [mmap.run(mmap.k, True) * mmap.p_zt for i in range(l)])
+
+    u = orthogonal_lattice(omega, mmap.x0)
+    u = block_matrix([[u], [zero_matrix(ZZ, 1, l)]])
+    passes = 0
+    for i in range(500):
+        v = random_vector(ZZ, l) * u
+        if Zmod(mmap.x0)(v * omega) == 0:
+            passes += 1
+
+    return passes
 
 if __name__=="__main__":
-	main()
+    lam = 10
+    k = 5
+    l = 1000
+
+    params = CLT.set_params(lam, k)
+    mmap = CLT(params)
+
+    attack(mmap, l)
 
 # attack psuedocode
 
