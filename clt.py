@@ -31,7 +31,7 @@ class CLT(MMP):
         eta = self.eta
         self.x0 = ZZ(1)
         
-        primes = [random_prime(2**eta, proof=False) for i in range(self.n)]
+        primes = [random_prime(2**eta, lbound = 2**(eta - 1), proof=False) for i in range(self.n)]
         
         self.x0 = prod(primes)
 

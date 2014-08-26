@@ -4,7 +4,6 @@ from util import *
 
 @profile(LOG, "orthogonal lattice")
 def orthogonal_lattice(omega, x0, u_max):
-    print omega
     l = len(omega)
 
     M = block_matrix([[identity_matrix(l), omega.column()],[zero_matrix(ZZ, 1, l), x0]])
@@ -23,22 +22,16 @@ def orthogonal_lattice(omega, x0, u_max):
                 M.add_multiple_of_row(i, index, -(x//minimum))
 
     M = M.delete_rows([index, l]).delete_columns([l]).LLL()
-    print M
-    for i in range(l-1):
-        print Zmod(x0)(omega.dot_product(M.row(i)))
     temp = list()
     for i in range (l-1):
         if ((M.row(i).dot_product(M.row(i))).isqrt() > u_max):
-            print (M.row(i).dot_product(M.row(i))).isqrt()
             temp.append(i)
     M = M.delete_rows(temp)
-    print "Reduced Matrix"
-    print M
     return M
 
 def attack(mmap, l):
     omega = vector(ZZ, [mmap.run(mmap.k, True) * mmap.p_zt for i in range(l)])
-    u_max = 2**(mmap.eta-1)//Integer(mmap.n*((2**(mmap.rho - 1))**2)).isqrt()
+    u_max = 2**(mmap.eta-1)//Integer(mmap.n*(2**(2*mmap.rho))).isqrt()
     u = orthogonal_lattice(omega, mmap.x0, u_max)
 
 def test(mmap, l):
@@ -52,13 +45,13 @@ def test(mmap, l):
         v = random_vector(ZZ, l) * u
         if Zmod(mmap.x0)(v * omega) == 0:
             passes += 1
-
+    
     return passes
 
 if __name__=="__main__":
-    lam = 5
+    lam = 2
     k = 5
-    l = 10
+    l = 20
 
     params = CLT.set_params(lam, k)
     mmap = CLT(params)
