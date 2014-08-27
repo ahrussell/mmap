@@ -20,18 +20,17 @@ class CLT(MMP):
 
         n = 6*lam # number of primes
         k_temp = k
-        return (alpha, beta, rho, eta, bound, n, k_temp)
+        return (alpha, beta, rho, rho_f, eta, bound, n, k_temp)
 
     #@profile(LOG, "setup")
     def __init__(self, params):
 
         # set parameters
-        (self.alpha, beta, self.rho, self.eta, self.bound, self.n, self.k) = params
+        (self.alpha, beta, self.rho, self.rho_f, self.eta, self.bound, self.n, self.k) = params
 
-        eta = self.eta
         self.x0 = ZZ(1)
         
-        primes = [random_prime(2**eta, lbound = 2**(eta - 1), proof=False) for i in range(self.n)]
+        primes = [random_prime(2**self.eta, lbound = 2**(self.eta - 1), proof=False) for i in range(self.n)]
         
         self.x0 = prod(primes)
 
