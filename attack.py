@@ -35,11 +35,25 @@ def attack(mmap, l):
     # find all vectors u small enough in this lattice
     u_max = 2**(mmap.eta-1) // Integer(mmap.n * (2**(2*mmap.rho_f))).isqrt()
     us = matrix([row for row in u.rows() if row.norm() < u_max])
-    print "u:"
-    print u
-    print "us:"
-    print us
-    print us.right_kernel()     # This should yield us the lattice orthorgonal to the u's
+    print "u:", u.nrows()
+    print "us:", us.nrows()
+
+    rk = us.right_kernel()
+    rs = matrix(ZZ, rk.matrix()).LLL()
+
+    print "rs:", rs.nrows()
+    factors = set()
+
+    for r in rs:
+        s = rk.random_element()
+
+        sw = s * omega
+        if Zmod(mmap.x0)(sw) == 0:
+            continue
+
+        factors.add(gcd(sw, mmap.x0))
+
+    return factors
 
 
 def test(mmap, l):
@@ -59,12 +73,16 @@ def test(mmap, l):
 if __name__=="__main__":
     lam = 2
     k = 5
-    l = 20
+    l = 30
 
     params = CLT.set_params(lam, k)
     mmap = CLT(params)
 
-    attack(mmap, l)
+    f = attack(mmap, l)
+
+    # see if we actually have any factors of x
+    for x in f:
+        print x.divides(mmap.x0)
 
 # attack psuedocode
 
