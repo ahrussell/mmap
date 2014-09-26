@@ -33,9 +33,14 @@ def attack(mmap, l):
     u = u.LLL()
 
     # find all vectors u small enough in this lattice
-    u_max = 2**(mmap.eta-1) // ZZ(mmap.n * (2**(2*mmap.rho_f))).isqrt()
-    us = [row for row in u.rows() if row.norm() < u_max]
-    print len(us)
+    u_max = 2**(mmap.eta-1) // Integer(mmap.n * (2**(2*mmap.rho_f))).isqrt()
+    us = matrix([row for row in u.rows() if row.norm() < u_max])
+    print "u:"
+    print u
+    print "us:"
+    print us
+    print us.right_kernel()     # This should yield us the lattice orthorgonal to the u's
+
 
 def test(mmap, l):
     ''' test the orthogonal_lattice method '''
@@ -52,9 +57,9 @@ def test(mmap, l):
     return passes
 
 if __name__=="__main__":
-    lam = 5
+    lam = 2
     k = 5
-    l = 150
+    l = 20
 
     params = CLT.set_params(lam, k)
     mmap = CLT(params)
