@@ -50,8 +50,8 @@ def attack(mmap, l):
         sw = s * omega
         if Zmod(mmap.x0)(sw) == 0:
             continue
-
-        factors.add(gcd(sw, mmap.x0))
+        else:
+            factors.add(gcd(sw, mmap.x0))
 
     return factors
 
@@ -71,9 +71,9 @@ def test(mmap, l):
     return passes
 
 if __name__=="__main__":
-    lam = 2
+    lam = 5
     k = 5
-    l = 30
+    l = 150
 
     params = CLT.set_params(lam, k)
     mmap = CLT(params)
@@ -83,6 +83,8 @@ if __name__=="__main__":
     # see if we actually have any factors of x
     for x in f:
         print x.divides(mmap.x0)
+        print x.is_prime()
+        print x in mmap.primes
 
 # attack psuedocode
 

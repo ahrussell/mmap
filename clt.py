@@ -30,7 +30,8 @@ class CLT(MMP):
 
         self.x0 = ZZ(1)
         
-        primes = [random_prime(2**self.eta, lbound = 2**(self.eta - 1), proof=False) for i in range(self.n)]
+        self.primes = [random_prime(2**self.eta, lbound = 2**(self.eta - 1), proof=False) for i in range(self.n)]
+        primes = self.primes
         
         self.x0 = prod(primes)
 
