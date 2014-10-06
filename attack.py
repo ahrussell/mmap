@@ -24,11 +24,15 @@ def orthogonal_lattice(omega, x0):
     M = M.delete_rows([index, l]).delete_columns([l])
 
     return M
-    
 
+@profile(LOG, "attack time")
 def attack(mmap, l):
     omega = vector(ZZ, [mmap.run(mmap.k, True) * mmap.p_zt for i in range(l)])
-    
+    print mmap.bound
+    print [ len(omega_ele.bits()) for omega_ele in omega]
+    print len(mmap.x0.bits())
+    print len(ZZ(mmap.p_zt).bits())
+    #print omega    
     u = orthogonal_lattice(omega, mmap.x0)
     u = u.LLL()
 
@@ -71,9 +75,9 @@ def test(mmap, l):
     return passes
 
 if __name__=="__main__":
-    lam = 5
+    lam = 15
     k = 5
-    l = 150
+    l = 100
 
     params = CLT.set_params(lam, k)
     mmap = CLT(params)
@@ -81,10 +85,16 @@ if __name__=="__main__":
     f = attack(mmap, l)
 
     # see if we actually have any factors of x
+    print len(f)
     for x in f:
-        print x.divides(mmap.x0)
+        if x == 1:
+            print "factor is 1"
+        if x > 1:
+            print x.divides(mmap.x0)
+        print x
         print x.is_prime()
         print x in mmap.primes
+        print Zmod(x)(mmap.x0)
 
 # attack psuedocode
 
