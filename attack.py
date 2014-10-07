@@ -1,8 +1,9 @@
 from sage.all import *
 from clt import CLT
 from util import *
+import argparse
 
-@profile(LOG, "orthogonal lattice")
+@profile(LOG, "orthogonal lattice ")
 def orthogonal_lattice(omega, x0):
     l = len(omega)
 
@@ -25,13 +26,9 @@ def orthogonal_lattice(omega, x0):
 
     return M
 
-@profile(LOG, "attack time")
+@profile(LOG, "attack time ")
 def attack(mmap, l):
     omega = vector(ZZ, [mmap.run(mmap.k, True) * mmap.p_zt for i in range(l)])
-    print mmap.bound
-    print [ len(omega_ele.bits()) for omega_ele in omega]
-    print len(mmap.x0.bits())
-    print len(ZZ(mmap.p_zt).bits())
     #print omega    
     u = orthogonal_lattice(omega, mmap.x0)
     u = u.LLL()
@@ -75,9 +72,29 @@ def test(mmap, l):
     return passes
 
 if __name__=="__main__":
-    lam = 15
+
+    lam = 5
     k = 5
-    l = 100
+    l = 80
+
+    parser = argparse.ArgumentParser(description='''CLT attack''');
+
+    parser.add_argument('-lam', dest='lam', default=lam, type=int, 
+        help='Security parameter, default is ' + str(lam))
+    parser.add_argument('-k', dest='k', default=k, type=int, 
+        help='Multilinearity parameter, default is ' + str(k))
+    parser.add_argument('-l', dest='l', default=l, type=int, 
+        help='Number of encodings, default is ' + str(l))
+
+    params = parser.parse_args()
+
+    lam = params.lam
+    k = params.k
+    l = params.l
+
+    print "lambda:", lam
+    print "level(k):", k
+    print "num_encodings:", l
 
     params = CLT.set_params(lam, k)
     mmap = CLT(params)
@@ -85,16 +102,15 @@ if __name__=="__main__":
     f = attack(mmap, l)
 
     # see if we actually have any factors of x
-    print len(f)
+    success = False;
     for x in f:
-        if x == 1:
-            print "factor is 1"
         if x > 1:
-            print x.divides(mmap.x0)
-        print x
-        print x.is_prime()
-        print x in mmap.primes
-        print Zmod(x)(mmap.x0)
+            success = True
+        print "Factor of x0 :", x
+
+    if success == True:
+        print "Attack succeeded"
+    else: print "Attack failed"
 
 # attack psuedocode
 
