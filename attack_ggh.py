@@ -3,10 +3,11 @@ from ggh import GGH
 from util import *
 
 @profile(LOG, "orthogonal lattice")
-def orthogonal_lattice(omega, x0):
+def orthogonal_lattice(omega, z, Rq):
     l = len(omega)
 
-    M = block_matrix([[identity_matrix(l), omega.column()],[zero_matrix(ZZ, 1, l), x0]])
+    M = block_matrix([[identity_matrix(l), omega.column()],[zero_matrix(Rq, 1, l), z]])
+    print M
     while True:
         last_col = M.column(l)
         nonzero = [(i,x) for i,x in enumerate(last_col) if x]
@@ -19,22 +20,25 @@ def orthogonal_lattice(omega, x0):
         # subtract x//minimum from each row (except the row with the min entry) 
         for i,x in enumerate(last_col):
             if i != index:
-                M.add_multiple_of_row(i, index, -(x//minimum))
+                M.add_multiple_of_row(i, index, -(x/minimum))
 
     M = M.delete_rows([index, l]).delete_columns([l])
-
+    print M
+    print "Testing (Shall print all 0's if Succeeded)"
+    for row in M.rows():
+        print row*omega
     return M
 
 @profile(LOG, "attack time")
 def attack(mmap, l):
     omega = vector(mmap.Rq, [mmap.Rq(mmap.run(mmap.k, True)) * mmap.p_zt for i in range(l)])
     print omega
-    print [ len(omega_ele.bits()) for omega_ele in omega]
-    print len(mmap.x0.bits())
-    print len(ZZ(mmap.p_zt).bits())
+    #print [ len(omega_ele.bits()) for omega_ele in omega]
+    #print len(mmap.x0.bits())
+    #print len(ZZ(mmap.p_zt).bits())
     #print omega    
-    u = orthogonal_lattice(omega, mmap.x0)
-    u = u.LLL()
+    u = orthogonal_lattice(omega, mmap.z, mmap.Rq)
+    u = matrix(mmap.Rq, u).LLL()
 
     # find all vectors u small enough in this lattice
     u_max = 2**(mmap.eta-1) // Integer(mmap.n * (2**(2*mmap.rho_f))).isqrt()
