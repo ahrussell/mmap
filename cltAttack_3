@@ -40,4 +40,9 @@ level(k): 3
 num_encodings: 110
 Attack succeeded
 
+Attack time: 8037.52984118
 
+lambda: 9
+level(k): 3
+num_encodings: 230
+Attack succeeded
