@@ -1,0 +1,43 @@
+Attack time: 0.322312116623
+
+lambda: 3
+level(k): 3
+num_encodings: 30
+Attack succeeded
+
+Attack time: 1.64814114571
+
+lambda: 4
+level(k): 3
+num_encodings: 40
+Attack succeeded
+
+Attack time: 29.728883028
+
+lambda: 5
+level(k): 3
+num_encodings: 60
+Attack succeeded
+
+Attack time: 105.164002895
+
+lambda: 6
+level(k): 3
+num_encodings: 80
+Attack succeeded
+
+Attack time: 286.02908802
+
+lambda: 7
+level(k): 3
+num_encodings: 90
+Attack succeeded
+
+Attack time: 1315.64942193
+
+lambda: 8
+level(k): 3
+num_encodings: 110
+Attack succeeded
+
+

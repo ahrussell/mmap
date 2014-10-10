@@ -3,7 +3,6 @@ from clt import CLT
 from util import *
 import argparse
 
-@profile(LOG, "orthogonal lattice ")
 def orthogonal_lattice(omega, x0):
     l = len(omega)
 
@@ -26,7 +25,7 @@ def orthogonal_lattice(omega, x0):
 
     return M
 
-@profile(LOG, "attack time ")
+@profile(LOG, "Attack time")
 def attack(mmap, l):
     omega = vector(ZZ, [mmap.run(mmap.k, True) * mmap.p_zt for i in range(l)])
     #print omega    
@@ -36,13 +35,13 @@ def attack(mmap, l):
     # find all vectors u small enough in this lattice
     u_max = 2**(mmap.eta-1) // Integer(mmap.n * (2**(2*mmap.rho_f))).isqrt()
     us = matrix([row for row in u.rows() if row.norm() < u_max])
-    print "u:", u.nrows()
-    print "us:", us.nrows()
+    #print "u:", u.nrows()
+    #print "us:", us.nrows()
 
     rk = us.right_kernel()
     rs = matrix(ZZ, rk.matrix()).LLL()
 
-    print "rs:", rs.nrows()
+    #print "rs:", rs.nrows()
     factors = set()
 
     for r in rs:
@@ -54,7 +53,12 @@ def attack(mmap, l):
         else:
             factors.add(gcd(sw, mmap.x0))
 
-    return factors
+    success = False;
+    for x in factors:
+        if x > 1:
+            success = True
+    
+    return factors, success
 
 
 def test(mmap, l):
@@ -92,25 +96,30 @@ if __name__=="__main__":
     k = params.k
     l = params.l
 
+
+    maxTries = 3
+    success = False
+    attempt = 1
+    while (not success):
+        params = CLT.set_params(lam, k)
+        mmap = CLT(params)
+        f,success = attack(mmap, l)
+        attempt = attempt + 1
+        if attempt > maxTries and not success:
+            l = l + 10
+            attempt = 1
+
+    # see if we actually have any factors of x
+
+    print ""
     print "lambda:", lam
     print "level(k):", k
     print "num_encodings:", l
-
-    params = CLT.set_params(lam, k)
-    mmap = CLT(params)
-
-    f = attack(mmap, l)
-
-    # see if we actually have any factors of x
-    success = False;
-    for x in f:
-        if x > 1:
-            success = True
-        print "Factor of x0 :", x
-
+    
     if success == True:
         print "Attack succeeded"
     else: print "Attack failed"
+
 
 # attack psuedocode
 
