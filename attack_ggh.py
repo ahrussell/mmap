@@ -27,8 +27,8 @@ def orthogonal_lattice(omega, x0):
 
 @profile(LOG, "attack time")
 def attack(mmap, l):
-    omega = vector(ZZ, [mmap.run(mmap.k, True) * mmap.p_zt for i in range(l)])
-    print mmap.bound
+    omega = vector(mmap.Rq, [mmap.Rq(mmap.run(mmap.k, True)) * mmap.p_zt for i in range(l)])
+    print omega
     print [ len(omega_ele.bits()) for omega_ele in omega]
     print len(mmap.x0.bits())
     print len(ZZ(mmap.p_zt).bits())
@@ -75,12 +75,12 @@ def test(mmap, l):
     return passes
 
 if __name__=="__main__":
-    lam = 15
+    lam = 2
     k = 5
-    l = 100
+    l = 20
 
-    params = CLT.set_params(lam, k)
-    mmap = CLT(params)
+    params = GGH.set_params(lam, k)
+    mmap = GGH(params)
 
     f = attack(mmap, l)
 
