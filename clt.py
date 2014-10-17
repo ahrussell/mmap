@@ -15,7 +15,7 @@ class CLT(MMP):
         rho = lam # bitsize of r_i
 
         rho_f = k * (rho + alpha + 2) + rho + 1 # max bitsize of r_i at level-k
-        eta = rho_f + alpha + 2*beta + lam + 8 # bitsize of primes p_i
+        eta = rho_f + alpha + 2*beta + lam + 8 # bitsize of primes p_i 2*k*lam + 2*k + 5*lam + 9
         bound = eta - beta - rho_f - lam - 3 # bitsize of message to extract with p_zt
 
         n = 6*lam # number of primes

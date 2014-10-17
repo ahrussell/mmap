@@ -26,3 +26,10 @@ level(k): 6
 num_encodings: 120
 Attack succeeded
 
+Attack time: 7756.45684004
+
+lambda: 7
+level(k): 6
+num_encodings: 170
+Attack succeeded
+
