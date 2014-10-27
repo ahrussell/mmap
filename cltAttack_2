@@ -33,4 +33,16 @@ level(k): 2
 num_encodings: 80
 Attack succeeded
 
+Attack time: 374.117735147
 
+lambda: 8
+level(k): 2
+num_encodings: 100
+Attack succeeded
+
+Attack time: 4358.04
+
+lambda: 9
+level(k): 2
+num_encodings: 240
+Attack succeeded
