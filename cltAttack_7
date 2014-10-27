@@ -1,0 +1,28 @@
+Attack time: 1.59122800827
+
+lambda: 3
+level(k): 7
+num_encodings: 40
+Attack succeeded
+
+Attack time: 25.5724759102
+
+lambda: 4
+level(k): 7
+num_encodings: 70
+Attack succeeded
+
+Attack time: 221.725548029
+
+lambda: 5
+level(k): 7
+num_encodings: 100
+Attack succeeded
+
+Attack time: 1096.93914509
+
+lambda: 6
+level(k): 7
+num_encodings: 140
+Attack succeeded
+
