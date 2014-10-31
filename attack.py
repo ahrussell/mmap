@@ -1,7 +1,7 @@
 from sage.all import *
 from clt import CLT
 from util import *
-import argparse
+import argparse, time, sys
 
 def orthogonal_lattice(omega, x0):
     l = len(omega)
@@ -25,7 +25,7 @@ def orthogonal_lattice(omega, x0):
 
     return M
 
-@profile(LOG, "Attack time")
+#@profile(LOG, "Attack time")
 def attack(mmap, l):
     omega = vector(ZZ, [mmap.run(mmap.k, True) * mmap.p_zt for i in range(l)])
     #print omega    
@@ -96,29 +96,40 @@ if __name__=="__main__":
     k = params.k
     l = params.l
 
-
-    maxTries = 3
-    success = False
-    attempt = 1
-    while (not success):
+    numIters = 10
+    while numIters:
+        print >> sys.stderr, numIters
         params = CLT.set_params(lam, k)
         mmap = CLT(params)
-        f,success = attack(mmap, l)
-        attempt = attempt + 1
-        if attempt > maxTries and not success:
-            l = l + 10
-            attempt = 1
+        start = time.time()
+        f, success = attack(mmap,l)
+        end = time.time()
+        attackTime = end - start
+        print lam, k, l, attackTime, success
+        if success:
+          numIters -= 1
+#    maxTries = 3
+#    success = False
+#    attempt = 1
+#    while (not success):
+#        params = CLT.set_params(lam, k)
+#        mmap = CLT(params)
+#        f,success = attack(mmap, l)
+#        attempt = attempt + 1
+#        if attempt > maxTries and not success:
+#            l = l + 10
+#            attempt = 1
 
     # see if we actually have any factors of x
 
-    print ""
-    print "lambda:", lam
-    print "level(k):", k
-    print "num_encodings:", l
-    
-    if success == True:
-        print "Attack succeeded"
-    else: print "Attack failed"
+#    print ""
+#    print "lambda:", lam
+#    print "level(k):", k
+#    print "num_encodings:", l
+#    
+#    if success == True:
+#        print "Attack succeeded"
+#    else: print "Attack failed"
 
 
 # attack psuedocode
