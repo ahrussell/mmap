@@ -106,6 +106,7 @@ if __name__=="__main__":
         end = time.time()
         attackTime = end - start
         print lam, k, l, attackTime, success
+        print >> sys.stderr, lam, k, l, attackTime, success
         if success:
           numIters -= 1
 #    maxTries = 3
