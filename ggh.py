@@ -8,7 +8,7 @@ import random as rand
 class GGH(MMP):
     @staticmethod
     def set_params(lam, k):
-        n = lam**2 * k # dim of poly ring
+        n = pow(2, ceil(log(lam**2 * k)/log(2))) # dim of poly ring, closest power of 2 to k(lam^2)
         q = next_prime(ZZ(2)**(8*k*lam) * n**k, proof=False) # prime modulus
 
         sigma = int(sqrt(lam * n))

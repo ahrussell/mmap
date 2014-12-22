@@ -39,7 +39,8 @@ class MMP():
         passes = 0
 
         for i in range(no_tests):
-            result = self.run(k, of_zero = rand.choice([True, False]))
+            with_zero = rand.choice([True, False])
+            result = self.run(k, of_zero = with_zero)
 
             passes += self.is_zero(result) == with_zero # add 1 if it passes
 
