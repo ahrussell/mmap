@@ -1,6 +1,5 @@
 import random as rand
 
-from sage.all_cmdline import *
 from sage.all import ZZ
 from sage.rings.all import RR, QQ, PolynomialRing, Zmod
 from sage.rings.arith import next_prime
