@@ -102,6 +102,10 @@ class CLT(MMP):
 
         return self.encode(m, S)
 
+    def zero(self,S):
+        ''' encoding of 0 at index S '''
+        return self.encode(zero_vector(self.n), S)
+
     def is_zero(self,c):
         w = abs(mod_near(c*self.p_zt, self.x0))
         return w < (self.x0 >> self.bound)

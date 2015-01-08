@@ -51,11 +51,9 @@ class GGH(MMP):
         DGSL_sigma = DGSL(ZZ**self.n, sigma)
         self.D_sigma = lambda: self.Rq(list(DGSL_sigma()))
 
-        self.D_sigmap = lambda center: self.Rq(list(DGSL(ZZ**self.n, self.sigma_prime, c=center)()))
-        
-        # sigmap centered at zero
-        DGSL_sigmap_zero = DGSL(ZZ**self.n, self.sigma_prime)
-        self.D_sigmap_zero = lambda: self.Rq(list(DGSL_sigmap_zero()))
+        # discrete Gaussian in ZZ^n with stddev sigma_prime, yields random level-0 encodings
+        DGSL_sigmap_ZZ = DGSL(ZZ**self.n, self.sigma_prime)
+        self.D_sigmap_ZZ = lambda: self.Rq(list(DGSL_sigmap_ZZ()))
 
         # draw g (in Rq) repeatedly from a Gaussian distribution of Z^n (with param sigma)
         # until g^(-1) in QQ[x]/<x^n + 1> is small (< n^2)
@@ -74,10 +72,10 @@ class GGH(MMP):
         self.g = self.D_sigma()
         self.ginv = self.g**(-1)
 
-        # set up a discrete Gaussian centered at 0
-        g = vector(ZZ, mod_near_poly(self.g,self.q))
-        DGSL_sigmap_g = DGSL(ZZ**self.n, self.sigma_prime, c=g)
-        self.D_sigmap_g = lambda: self.Rq(list(DGSL_sigmap_g()))
+        # discrete Gaussian in I = <g>, yields random encodings of 0
+        short_g = vector(ZZ, mod_near_poly(self.g,self.q))
+        DGSL_sigmap_I = DGSL(short_g, self.sigma_prime)
+        self.D_sigmap_I = lambda: self.Rq(list(DGSL_sigmap_I()))
 
         # compute zero-testing parameter p_zt
         # randomly draw h (in Rq) from a discrete Gaussian with param q^(1/2)
@@ -89,30 +87,24 @@ class GGH(MMP):
     def encode(self, m, S):
         ''' encodes a vector m (in Zmod(q)^n) to index set S '''
 
-        m = vector(Zmod(self.q),m)
-        # print 1
-        # B = (ZZ**self.n).matrix()
-        # print 0
-        # w = B.solve_left(vector(self.g))
-        # print 2
-        # if w in ZZ**self.n:
-        #     print 3
-        # else:
-        #     print 4
-
-        s = vector(Zmod(self.q),self.D_sigmap_g())
-        c = self.Rq(list(s + m))
-
         zinv = prod([self.zinv[i] for i in S])
 
-        return self.Rq(c * zinv)
+        m = vector(Zmod(self.q),m)
+
+        zero = vector(Zmod(self.q),self.D_sigmap_I()) # random encoding of 0
+        c = self.Rq(list(zero + m))
+
+        return c * zinv
 
     def sample(self,S):
         # draw an element of Rq from a Gaussian distribution of Z^n (with param sigmaprime)
         # then encode at index set S
 
-        print "sample"
-        return self.D_sigmap_zero() * prod([self.zinv[i] for i in S])
+        return self.D_sigmap_ZZ() * prod([self.zinv[i] for i in S])
+
+    def zero(self,S):
+        ''' encoding of 0 at index S '''
+        return self.encode(list(self.D_sigmap_I()), S)
 
     def is_zero(self, c):
         w = self.Rq(c) * self.p_zt
