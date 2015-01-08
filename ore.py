@@ -1,4 +1,4 @@
-from clt import CLTA
+from ggh import GGH
 from sage.all import *
 from util import profile, LOG
 import random
@@ -23,12 +23,12 @@ def bits(n,b):
 
 def random_number(b):
 	''' returns a random b-bit number and its representation as a list of bits '''
-	x_ = random.randint(0,2**4 - 1)
+	x_ = random.randint(0,2**b - 1)
 
 	return x_, bits(x_,b)
 
 def random_zmod_star(q):
-	c = Zmod(q).random_element()
+	c = 0
 
 	while c == 0:
 		c = Zmod(q).random_element()
@@ -73,9 +73,12 @@ class ORE:
 					        [0,0,0,1,0],
 					        [0,0,0,0,1]])
 
+		# create mmap
+		# params = GGH.set_params(lam, 2*n)
+		# self.mmap = GGH(params,asym=False)
 
 		# fix prime q
-		self.q = random_prime(2000)
+		self.q = random_prime(2000000) 
 
 		GLq = GL(5, Zmod(self.q))
 		Zq = Zmod(self.q)
@@ -93,9 +96,6 @@ class ORE:
 		R.append(e(5))
 		RInv.append(e(5))
 
-		# create mmap
-		params = CLTA.set_params(lam, 2*n)
-		self.mmap = CLTA(params)
 
 		self.secret_key = R, RInv # and index sets
 
@@ -105,18 +105,17 @@ class ORE:
 		RInv = self.secret_key[1]
 
 		x = bits(x,self.n)
-		x.insert(0,0)
+		x.insert(0,0) # padding for the for loop
 
 		X = []
 		Y = []
 
-		iden = identity_matrix(5)
 		for i in range(1,n+1):
-			a = random_zmod_star(self.q)* I_5
-			b = random_zmod_star(self.q)* I_5
+			# a = random_zmod_star(self.q)* I_5
+			# b = random_zmod_star(self.q)* I_5
 
-			X.append(a * R[2*i-2]*self.X[x[i]]*RInv[2*i-1])
-			Y.append(b * R[2*i-1]*self.Y[x[i]]*RInv[2*i])
+			X.append(R[2*i-2]*self.X[x[i]]*RInv[2*i-1])
+			Y.append(R[2*i-1]*self.Y[x[i]]*RInv[2*i])
 
 		# create exclusive partition families of U_1 and U_2 
 		U_1 = [i for i in range(self.n)]
@@ -130,9 +129,9 @@ class ORE:
 
 		encode = lambda S: lambda x: self.mmap.encode([x for i in range(self.mmap.n)],S)
 
-		for i in range(self.n):
-			X[i] = X[i].apply_map(encode(S[i]))
-			Y[i] = Y[i].apply_map(encode(T[i]))
+		# for i in range(self.n):
+		# 	X[i] = X[i].apply_map(encode(S[i]))
+		# 	Y[i] = Y[i].apply_map(encode(T[i]))
 
 		return (X,Y)
 
@@ -146,14 +145,14 @@ class ORE:
 		for i in range(n):
 			z *=  X[i] * Y[i]
 
-		return self.mmap.is_zero(z) 
+		return z == 0 #self.mmap.is_zero(z) 
 
 if __name__=="__main__":
 
 	no_tests = 10
 	passes = 0
 	n = 4
-	lam = 20
+	lam = 15
 
 	ore = ORE(n, lam)
 
