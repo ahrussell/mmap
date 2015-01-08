@@ -1,9 +1,14 @@
 import time
 import sys
 
-from sage.all import ZZ
+from sage.rings.all import ZZ
 
 LOG = sys.stdout
+
+def mod_near_poly(x,q):
+    ''' mod_near the coefficients of x (mod q) '''
+
+    return map(lambda y: mod_near(y,q), x)
 
 def mod_near(a,b):
     ''' returns a mod b where -b/2 <= a < b/2 '''

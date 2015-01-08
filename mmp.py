@@ -1,6 +1,7 @@
-from util import *
-
 import random as rand
+
+from util import *
+from sage.all import zero_vector
 
 class MMP():
     ''' Abstract MMP class '''
@@ -8,12 +9,14 @@ class MMP():
     def __init__(self):
         raise Exception("abstract class")
 
-    #@profile(LOG, "generate")
     def generate(self, k):
         ''' Generate k level-1 encodings '''
-        return [self.sample(i) for i in range(k)]
+        return [self.sample([i]) for i in range(k)]
 
-    #@profile(LOG, "multiply")
+    def zero(self,S):
+        ''' encoding of 0 at index S '''
+        return self.encode(zero_vector(self.n), S)
+
     def multiply(self, encodings, *args):
         ''' Multiplies encodings and args '''
 
@@ -23,6 +26,7 @@ class MMP():
 
         return result
 
+    @profile(LOG, "run")
     def run(self, k, of_zero = False):
         ''' Generates k level-1 encodings, multiplies them'''
         ''' Will return a level-k encoding of 0 if of_zero=True '''
@@ -30,7 +34,7 @@ class MMP():
         encodings = self.generate(k - of_zero)
 
         if of_zero:
-            encodings.append(self.zero(k-1))
+            encodings.append(self.zero([k-1]))
 
         return self.multiply(encodings)
 
