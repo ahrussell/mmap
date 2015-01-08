@@ -1,4 +1,4 @@
-mmap
+Cryptographic Multilinear Maps in Sage
 ====
 
 Sage (6.4.1 and later) implementation of the [GGH](https://eprint.iacr.org/2012/610.pdf) and [CLT](https://eprint.iacr.org/2013/183.pdf) multilinear map scheme.  Partial implementation of a semantically-secure order-revealing encryption scheme.
