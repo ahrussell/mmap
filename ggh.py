@@ -43,9 +43,6 @@ class GGH(MMP):
             zinv = z**(-1)
             z, self.zinv = zip(*[(z,zinv) for i in range(self.k)])
 
-        Sk = PolynomialRing(QQ, 'x')
-        K = Sk.quotient_ring(Sk.ideal(x**self.n + 1))
-
         # set up some discrete Gaussians
         DGSL_sigma = DGSL(ZZ**self.n, sigma)
         self.D_sigma = lambda: self.Rq(list(DGSL_sigma()))
@@ -54,25 +51,22 @@ class GGH(MMP):
         DGSL_sigmap_ZZ = DGSL(ZZ**self.n, self.sigma_prime)
         self.D_sigmap_ZZ = lambda: self.Rq(list(DGSL_sigmap_ZZ()))
 
-        # draw g (in Rq) repeatedly from a Gaussian distribution of Z^n (with param sigma)
+        # draw g repeatedly from a Gaussian distribution of Z^n (with param sigma)
         # until g^(-1) in QQ[x]/<x^n + 1> is small (< n^2)
-        # while True:
-        #     l = self.D_sigma
-        #     ginv_K = K(l)**(-1)
-        #     ginv_size = vector(ginv_K).norm()
+        Sk = PolynomialRing(QQ, 'x')
+        K = Sk.quotient_ring(Sk.ideal(x**self.n + 1)) 
+        while True:
+            l = self.D_sigma()
+            ginv_K = K(mod_near_poly(l, self.q))**(-1)
+            ginv_size = vector(ginv_K).norm()
 
-        #     if ginv_size < self.n**2:
-        #         self.g = self.Rq(l)
-        #         self.ginv = g**(-1)
-        #         break
-
-        # don't check if g^(-1) in K is small because inverting g in K is expensive
-        # and it's probably small anyway
-        self.g = self.D_sigma()
-        self.ginv = self.g**(-1)
+            if ginv_size < self.n**2:
+                g = self.Rq(l)
+                self.ginv = g**(-1)
+                break
 
         # discrete Gaussian in I = <g>, yields random encodings of 0
-        short_g = vector(ZZ, mod_near_poly(self.g,self.q))
+        short_g = vector(ZZ, mod_near_poly(g,self.q))
         DGSL_sigmap_I = DGSL(short_g, self.sigma_prime)
         self.D_sigmap_I = lambda: self.Rq(list(DGSL_sigmap_I()))
 

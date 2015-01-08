@@ -22,7 +22,6 @@ class MMP():
 
         return result
 
-    @profile(LOG, "run")
     def run(self, k, of_zero = False):
         ''' Generates k level-1 encodings, multiplies them'''
         ''' Will return a level-k encoding of 0 if of_zero=True '''
