@@ -1,25 +1,16 @@
-from sage.all import *
-
 import time
 import sys
 
+from sage.all import ZZ
+
 LOG = sys.stdout
-
-def random_gauss(stddev, dim):
-    return list(random_vector(Zmod(3*stddev), dim))
-
-def current_time():
-    return time.time()
 
 def mod_near(a,b):
     ''' returns a mod b where -b/2 <= a < b/2 '''
+    a = ZZ(a)
+    b = ZZ(b)
 
-    x = ZZ(Zmod(b)(a))
-
-    if x < round(b / 2):
-        return x
-    else:
-        return x - ZZ(b)
+    return a - b*((2*a+b) // (2*b))
 
 def profile(log_file, message):
     def timed(func):

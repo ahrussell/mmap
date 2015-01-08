@@ -11,7 +11,7 @@ class MMP():
     #@profile(LOG, "generate")
     def generate(self, k):
         ''' Generate k level-1 encodings '''
-        return [self.sample() for i in range(k)]
+        return [self.sample(i) for i in range(k)]
 
     #@profile(LOG, "multiply")
     def multiply(self, encodings, *args):
@@ -30,7 +30,7 @@ class MMP():
         encodings = self.generate(k - of_zero)
 
         if of_zero:
-            encodings.append(self.zero())
+            encodings.append(self.zero(k-1))
 
         return self.multiply(encodings)
 
@@ -39,7 +39,8 @@ class MMP():
         passes = 0
 
         for i in range(no_tests):
-            result = self.run(k, of_zero = rand.choice([True, False]))
+            with_zero = rand.choice([True, False])
+            result = self.run(k, of_zero = with_zero)
 
             passes += self.is_zero(result) == with_zero # add 1 if it passes
 

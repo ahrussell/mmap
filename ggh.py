@@ -1,14 +1,16 @@
 from sage.all_cmdline import *
+from sage.stats.distributions.discrete_gaussian_lattice import DiscreteGaussianDistributionLatticeSampler as DGSL
 
 from mmp import MMP
 from util import *
+import norms
 
 import random as rand
 
 class GGH(MMP):
     @staticmethod
     def set_params(lam, k):
-        n = lam**2 * k # dim of poly ring
+        n = pow(2, ceil(log(lam**2 * k)/log(2))) # dim of poly ring, closest power of 2 to k(lam^2)
         q = next_prime(ZZ(2)**(8*k*lam) * n**k, proof=False) # prime modulus
 
         sigma = int(sqrt(lam * n))
@@ -17,9 +19,7 @@ class GGH(MMP):
         return (n, q, sigma, sigma_prime, k)
 
     @profile(LOG, "setup")
-    def __init__(self, params):
-
-        c = current_time()
+    def __init__(self, params, asym=False):
 
         (self.n, self.q, sigma, self.sigma_prime, self.k) = params
 
@@ -29,19 +29,27 @@ class GGH(MMP):
         Sq = PolynomialRing(Zmod(self.q), 'x')
         self.Rq = Sq.quotient_ring(Sq.ideal(x**self.n + 1))
 
-        c = current_time()
-        # draw z uniformly from Rq and compute its inverse in Rq
-        self.z = self.Rq.random_element()
-        self.zinv = self.z**(-1)
+        # draw z_is uniformly from Rq and compute its inverse in Rq
+        if asym:
+            self.z = [self.Rq.random_element() for i in range(self.k)]
+            self.zinv = [z_i**(-1) for z_i in self.z]
+        else: # or do symmetric version
+            z = self.Rq.random_element()
+            self.z = [z for i in range(self.k)]
 
-        c = current_time()
+            zinv = z**(-1)
+            self.zinv = [zinv for z_i in self.z]
+
         Sk = PolynomialRing(QQ, 'x')
         K = Sk.quotient_ring(Sk.ideal(x**self.n + 1))
+
+        self.D_sigma = lambda: self.Rq(list(DGSL(ZZ**self.n, sigma)()))
+        self.D_sigmap = lambda center: self.Rq(list(DGSL(ZZ**self.n, self.sigma_prime, c=center)()))
 
         # draw g (in Rq) repeatedly from a Gaussian distribution of Z^n (with param sigma)
         # until g^(-1) in QQ[x]/<x^n + 1> is small (< n^2)
         # while True:
-        #     l = random_gauss(sigma, self.n)
+        #     l = self.D_sigma
         #     ginv_K = K(l)**(-1)
         #     ginv_size = vector(ginv_K).norm()
 
@@ -52,31 +60,37 @@ class GGH(MMP):
 
         # don't check if g^(-1) in K is small because inverting g in K is expensive
         # and it's probably small anyway
-        self.g = self.Rq(random_gauss(sigma, self.n))
+        self.g = self.D_sigma()
         self.ginv = self.g**(-1)
 
-        c = current_time()
         # compute zero-testing parameter p_zt
         # randomly draw h (in Rq) from a discrete Gaussian with param q^(1/2)
-        self.h = self.Rq(random_gauss(round(sqrt(self.q)), self.n))
+        self.h = self.Rq(list(DGSL(ZZ**self.n, round(sqrt(self.q)))()))
 
         # create p_zt
-        self.p_zt = self.ginv * self.h * self.z**self.k
+        self.p_zt = self.ginv * self.h * prod(self.z)
 
-    def sample(self):
+    def encode(self, m, S):
+        ''' encodes a vector m (in Zmod(q)^n) to index set S '''
+
+        m = vector(Zmod(self.q),m)
+        c = self.Rq(list(self.D_sigmap(self.g) + m))
+
+        zinv = prod([self.zinv[i] for i in S])
+
+        return self.Rq(c * zinv)
+
+    def sample(self,i):
         # draw an element of Rq from a Gaussian distribution of Z^n (with param sigmaprime)
-        # multiply by z^(-1)
+        # multiply by z_i^(-1) (or z^(-1) in symmetric version)
 
-        return self.Rq(random_gauss(self.sigma_prime, self.n)) * self.zinv
+        return self.D_sigmap(zero_vector(self.n)) * self.zinv[i]
 
-    def zero(self):
-        ''' Level-1 encoding of 0 '''
-        return self.g * self.zinv
+    def zero(self,i):
+        ''' Level-1 encoding of 0 of index i'''
+        return self.g * self.zinv[i]
 
     def is_zero(self, c):
         w = self.Rq(c) * self.p_zt
 
-        f = lambda x, y: max(x, abs(mod_near(y, self.q)))
-
-        norm = reduce(f, w, float('-inf')) 
-        return (norm < ZZ(self.q**(.75)))
+        return (norms.linf(w,self.q) < ZZ(RR(self.q)**(.75)))
