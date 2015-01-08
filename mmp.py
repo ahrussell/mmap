@@ -1,7 +1,6 @@
 import random as rand
 
 from util import *
-from sage.all import zero_vector
 
 class MMP():
     ''' Abstract MMP class '''

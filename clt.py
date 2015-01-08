@@ -4,6 +4,7 @@ import random as rand
 from sage.rings.all import ZZ, Zmod
 from sage.misc.misc_c import prod
 from sage.crypto.util import random_prime
+from sage.modules.free_module_element import vector, zero_vector
 
 from mmp import MMP
 from util import *
@@ -20,11 +21,10 @@ class CLT(MMP):
         eta = rho_f + alpha + 2*beta + lam + 8 # bitsize of primes p_i
         bound = eta - beta - rho_f - lam - 3 # bitsize of message to extract with p_zt
 
-        n = 6*lam # number of primes
-        k_temp = k
-        return (alpha, beta, rho, rho_f, eta, bound, n, k_temp)
+        n = (lam**2)*k # number of primes
+        return (alpha, beta, rho, rho_f, eta, bound, n, k)
 
-    #@profile(LOG, "setup")
+    @profile(LOG, "setup")
     def __init__(self, params, asym=False):
         # set parameters
         (self.alpha, self.beta, self.rho, self.rho_f, self.eta, self.bound, self.n, self.k) = params
